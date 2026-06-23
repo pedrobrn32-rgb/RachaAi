@@ -32,7 +32,7 @@ from utils.components import (
 
 from config import (
     GCS_BUCKET_NAME, ADMIN_USER, BASE_URL, MOEDAS,
-    SESSION_TIMEOUT_MINS, PAGE_SIZE_DESPESAS, logger
+    SESSION_TIMEOUT_MINS, PAGE_SIZE_DESPESAS, PAGE_SIZE_GRUPOS, logger
 )
 from services.gcs import GCSManager
 from services.cache import StreamlitCache
