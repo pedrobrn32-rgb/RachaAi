@@ -127,7 +127,7 @@ class Exportador:
             pdf.add_page()
             pdf.set_font("Helvetica", "B", 18)
             pdf.set_text_color(0, 108, 73)
-            pdf.cell(0, 12, f"DivideAi - {self.grupo.nome}", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 12, f"Racha Ai! - {self.grupo.nome}", new_x="LMARGIN", new_y="NEXT")
             pdf.set_font("Helvetica", "", 10)
             pdf.set_text_color(60, 60, 60)
             pdf.cell(0, 6, f"Tipo: {self.grupo.tipo_evento} | Participantes: {len(self.grupo.participantes)}", new_x="LMARGIN", new_y="NEXT")

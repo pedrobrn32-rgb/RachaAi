@@ -43,10 +43,10 @@ from services.auth import AuthService, LoginManager
 # ═══════════════════════════════════════════════════════════════════
 
 st.set_page_config(
-    page_title="Racha Ai!",
+    page_title="Racha Aí!",
     page_icon="💸",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # ─── Tema global (Plus Jakarta Sans + Verde Esmeralda, alinhado ao DESIGN.md) ───
@@ -131,6 +131,43 @@ html body [data-testid="stApp"] .main [data-testid="baseButton-primary"]:hover{
 @media (max-width:640px){.main .block-container{padding-left:1rem;padding-right:1rem}}
 </style>""", unsafe_allow_html=True)
 
+# ─── Sidebar + polimento profissional ───
+st.markdown("""<style>
+/* Sidebar mais larga e com profundidade */
+[data-testid="stSidebar"]{width:300px !important;min-width:300px !important;
+    box-shadow:4px 0 24px rgba(0,0,0,.14)}
+[data-testid="stSidebar"] hr{border-color:rgba(255,255,255,.18) !important;margin:.6rem 0}
+[data-testid="stSidebar"] .stButton button{
+    text-align:left !important;justify-content:flex-start !important;border-radius:10px !important}
+[data-testid="stSidebar"] .stButton button:hover{transform:translateX(3px)}
+/* DESKTOP: barra sempre aberta e fixa (esconde o botao de recolher) */
+@media (min-width:768px){
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="baseButton-headerNoPadding"]{display:none !important}
+}
+/* Botao de ABRIR a barra (>>>) destacado como "Menu" (visivel no mobile) */
+[data-testid="stSidebarCollapsedControl"],[data-testid="collapsedControl"]{
+    background:linear-gradient(135deg,#006c49,#10b981) !important;
+    border-radius:999px !important;padding:8px 14px !important;left:12px !important;top:12px !important;
+    box-shadow:0 6px 18px rgba(0,108,73,.4) !important;
+    display:flex !important;align-items:center !important;gap:6px !important;
+    animation:pulseMenu 2.2s ease-in-out infinite}
+[data-testid="stSidebarCollapsedControl"] svg,[data-testid="collapsedControl"] svg{
+    color:#fff !important;fill:#fff !important;width:22px !important;height:22px !important}
+[data-testid="stSidebarCollapsedControl"]::after,[data-testid="collapsedControl"]::after{
+    content:"Menu";color:#fff;font-weight:700;font-size:.9rem;letter-spacing:.01em}
+@keyframes pulseMenu{0%,100%{box-shadow:0 6px 18px rgba(0,108,73,.4)}
+    50%{box-shadow:0 6px 28px rgba(16,185,129,.75)}}
+/* Polimento de superficies */
+[data-testid="stForm"]{border:1px solid var(--border) !important;border-radius:18px !important;
+    box-shadow:var(--shadow) !important;padding:8px 6px}
+[data-testid="stExpander"]{border:1px solid var(--border) !important;border-radius:14px !important;
+    box-shadow:var(--shadow) !important;overflow:hidden}
+.stAlert{border-radius:14px !important;border:1px solid var(--border) !important}
+[data-testid="stIFrame"]{border-radius:16px;overflow:hidden}
+h2,h3{margin-top:.2rem}
+</style>""", unsafe_allow_html=True)
+
 fmt = Formatador()
 
 
@@ -141,6 +178,39 @@ def render_tailwind(html: str, height: int):
     Tailwind só para exibição e mantemos widgets nativos para as ações.
     """
     components.html(html, height=height, scrolling=True)
+
+
+def auto_close_sidebar_mobile():
+    """No celular, fecha a barra ao clicar num item dela. No desktop ela fica fixa
+    (o botao de recolher esta escondido via CSS), então isto só age no mobile."""
+    components.html(
+        """
+        <script>
+        const doc = window.parent.document;
+        const isMobile = () => window.parent.innerWidth < 768;
+        function collapseBtn(){
+            return doc.querySelector('[data-testid="stSidebarCollapseButton"] button')
+                || doc.querySelector('[data-testid="stSidebarCollapseButton"]')
+                || doc.querySelector('[data-testid="baseButton-headerNoPadding"]');
+        }
+        function wire(){
+            const sb = doc.querySelector('[data-testid="stSidebar"]');
+            if(!sb) return;
+            sb.querySelectorAll('button').forEach(function(b){
+                if(b.dataset._ac) return;
+                b.dataset._ac = '1';
+                b.addEventListener('click', function(){
+                    if(isMobile()){ const c = collapseBtn(); if(c){ setTimeout(function(){ c.click(); }, 130); } }
+                });
+            });
+        }
+        wire();
+        const sbEl = doc.querySelector('[data-testid="stSidebar"]');
+        if(sbEl){ new MutationObserver(wire).observe(sbEl, {childList:true, subtree:true}); }
+        </script>
+        """,
+        height=0,
+    )
 
 
 # ─── Session State (Inicialização) ───
@@ -283,16 +353,22 @@ def tela_login():
     """Tela de login e registro"""
     c1, c2, c3 = st.columns([1, 1.5, 1])
     with c2:
-        inicio = load_image_b64("inicio.png")
-        if inicio:
-            st.markdown(
-                f'<div style="text-align:center;margin:16px 0">'
-                f'<img src="data:image/png;base64,{inicio}" style="max-width:320px;border-radius:16px">'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-        st.markdown("## 💸 Racha Ai!")
-        st.markdown("Divida contas com segurança e praticidade!")
+        logo = load_image_b64("logo.png")
+        logo_html = (
+            f'<img src="data:image/png;base64,{logo}" '
+            f'style="width:84px;height:84px;border-radius:20px;object-fit:contain;'
+            f'background:rgba(255,255,255,.18);padding:8px">'
+        ) if logo else '<div style="font-size:3.4rem;line-height:1">💸</div>'
+        st.markdown(
+            f'<div style="text-align:center;padding:34px 20px;border-radius:24px;margin:8px 0 20px;'
+            f'background:linear-gradient(135deg,#006c49 0%,#10b981 100%);'
+            f'box-shadow:0 12px 30px rgba(0,108,73,.30)">'
+            f'{logo_html}'
+            f'<div style="font-size:2rem;font-weight:800;color:#fff;letter-spacing:-.02em;margin-top:12px">Racha Aí!</div>'
+            f'<div style="color:rgba(255,255,255,.92);font-size:1rem;margin-top:4px">Divida contas com segurança e praticidade</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
         
         tab1, tab2 = st.tabs(["🔓 Entrar", "🆕 Cadastro"])
         
@@ -363,15 +439,19 @@ def render_sidebar():
     
     with st.sidebar:
         logo = load_image_b64("logo.png")
-        if logo:
-            st.markdown(
-                f'<div style="text-align:center;margin-bottom:12px">'
-                f'<img src="data:image/png;base64,{logo}" style="max-width:55px">'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-        
-        st.markdown(f"### 💸 Racha Ai!")
+        logo_html = (
+            f'<img src="data:image/png;base64,{logo}" '
+            f'style="width:40px;height:40px;border-radius:10px;object-fit:contain;'
+            f'background:rgba(255,255,255,.12);padding:3px;flex:0 0 auto">'
+        ) if logo else '<span style="font-size:1.7rem;line-height:1">💸</span>'
+        st.markdown(
+            f'<div style="display:flex;align-items:center;gap:10px;margin:2px 0 12px">'
+            f'{logo_html}'
+            f'<span style="font-size:1.45rem;font-weight:800;color:#fff;'
+            f'letter-spacing:-.02em;line-height:1.1">Racha Aí!</span>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
         foto = uinfo.get("foto")
         nome = uinfo.get("nome", user)
         if foto:
@@ -949,6 +1029,7 @@ if not st.session_state.usuario_logado:
     st.stop()
 
 render_sidebar()
+auto_close_sidebar_mobile()
 
 grupo = get_grupo_ativo()
 page = st.session_state.page

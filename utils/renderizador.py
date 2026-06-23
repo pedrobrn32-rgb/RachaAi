@@ -68,7 +68,7 @@ class Renderizador:
         self.calc = Calculadora(grupo)
         self.divisao = AlgoritmoDivisao(grupo)
 
-    def _header(self, title="DivideAi"):
+    def _header(self, title="Racha Aí!"):
         return f"""
 <header class="bg-surface shadow-sm top-0 sticky z-50">
 <div class="flex items-center justify-between px-margin-mobile h-16 w-full max-w-7xl mx-auto">

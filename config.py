@@ -11,7 +11,7 @@ GCS_BUCKET_NAME = os.getenv("GCS_BUCKET_NAME", "rachaai-data-bucket")
 
 # ─── App ───
 ADMIN_USER = "pedro"
-BASE_URL = "https://rachaai.streamlit.app/"
+BASE_URL = "https://racha-ai-rho.vercel.app"
 SESSION_TIMEOUT_MINS = 30
 PAGE_SIZE_DESPESAS = 15
 PAGE_SIZE_GRUPOS = 10
