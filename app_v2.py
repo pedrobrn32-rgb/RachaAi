@@ -153,7 +153,13 @@ def init_session_state():
         # Carrega do GCS uma única vez
         st.session_state.dados = st.session_state.gcs_manager.get_data(use_cache=True)
         st.session_state.usuarios = st.session_state.dados.get("usuarios", {})
-        st.session_state.grupos = st.session_state.dados.get("grupos", {})
+        # Desserializa grupos: o GCS guarda como dict, mas o app todo usa como
+        # objeto Grupo (.nome, .participantes, .to_dict()...). Converte na entrada.
+        raw_grupos = st.session_state.dados.get("grupos", {})
+        st.session_state.grupos = {
+            gid: (g if isinstance(g, Grupo) else Grupo.from_dict(g))
+            for gid, g in raw_grupos.items()
+        }
         st.session_state.pagamentos = st.session_state.dados.get("pagamentos", {})
     
     if "usuario_logado" not in st.session_state:
@@ -212,7 +218,10 @@ def salvar_dados():
     """Salva dados atomicamente no GCS"""
     dados = {
         "usuarios": st.session_state.usuarios,
-        "grupos": {gid: g.to_dict() for gid, g in st.session_state.grupos.items()},
+        "grupos": {
+            gid: (g.to_dict() if hasattr(g, "to_dict") else g)
+            for gid, g in st.session_state.grupos.items()
+        },
         "pagamentos": st.session_state.pagamentos,
     }
     if st.session_state.gcs_manager.save_data(dados):
@@ -944,78 +953,95 @@ render_sidebar()
 grupo = get_grupo_ativo()
 page = st.session_state.page
 
-# Invitação para grupo
-if page == "convite":
-    convite_gid = st.query_params.get("grupo")
-    if convite_gid and convite_gid in st.session_state.grupos:
-        grupo_convite = st.session_state.grupos[convite_gid]
-        user = st.session_state.usuario_logado
-        if not any(p.id == user for p in grupo_convite.participantes):
-            st.markdown(f"## 🎉 Convite para {grupo_convite.nome}")
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("✅ Entrar", use_container_width=True):
-                    uinfo = user_info()
-                    grupo_convite.adicionar_participante(Participante(
-                        nome=uinfo.get("nome", user),
-                        chave_pix=uinfo.get("pix", ""),
-                        tipo_chave_pix=uinfo.get("tipo_pix", "CPF"),
-                        id=user,
-                    ))
-                    st.session_state.grupo_ativo_id = convite_gid
-                    st.session_state.page = "dashboard"
-                    salvar_dados()
-                    alert_sucesso(f"Bem-vindo a {grupo_convite.nome}!")
-                    st.rerun()
-            with c2:
-                if st.button("❌ Voltar", use_container_width=True):
-                    st.query_params.clear()
-                    st.rerun()
-        else:
-            st.session_state.grupo_ativo_id = convite_gid
+# Roteamento de páginas (com rede de segurança contra erros inesperados).
+# st.rerun()/st.stop() usam BaseException, então não são capturados aqui.
+try:
+    # Invitação para grupo
+    if page == "convite":
+        convite_gid = st.query_params.get("grupo")
+        if convite_gid and convite_gid in st.session_state.grupos:
+            grupo_convite = st.session_state.grupos[convite_gid]
+            user = st.session_state.usuario_logado
+            if not any(p.id == user for p in grupo_convite.participantes):
+                st.markdown(f"## 🎉 Convite para {grupo_convite.nome}")
+                c1, c2 = st.columns(2)
+                with c1:
+                    if st.button("✅ Entrar", use_container_width=True):
+                        uinfo = user_info()
+                        grupo_convite.adicionar_participante(Participante(
+                            nome=uinfo.get("nome", user),
+                            chave_pix=uinfo.get("pix", ""),
+                            tipo_chave_pix=uinfo.get("tipo_pix", "CPF"),
+                            id=user,
+                        ))
+                        st.session_state.grupo_ativo_id = convite_gid
+                        st.session_state.page = "dashboard"
+                        salvar_dados()
+                        alert_sucesso(f"Bem-vindo a {grupo_convite.nome}!")
+                        st.rerun()
+                with c2:
+                    if st.button("❌ Voltar", use_container_width=True):
+                        st.query_params.clear()
+                        st.rerun()
+            else:
+                st.session_state.grupo_ativo_id = convite_gid
+                st.session_state.page = "dashboard"
+                st.rerun()
+
+    elif page == "criar_grupo":
+        tela_criar_grupo()
+
+    elif page == "perfil":
+        tela_perfil()
+
+    elif page == "admin":
+        tela_admin()
+
+    elif page.startswith("perfil_admin_"):
+        tela_perfil(target=page.replace("perfil_admin_", ""))
+
+    elif grupo is None:
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c2:
+            logo = load_image_b64("logo.png")
+            if logo:
+                st.markdown(
+                    f'<div style="text-align:center">'
+                    f'<img src="data:image/png;base64,{logo}" style="max-width:200px">'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+            st.markdown("# 💸 Bem-vindo!")
+            st.markdown("Crie um novo grupo ou entre por um link de convite.")
+            if st.button("➕ Novo Grupo", key="criar_inicio", use_container_width=True):
+                st.session_state.page = "criar_grupo"
+                st.rerun()
+
+    elif page == "dashboard":
+        tela_dashboard()
+
+    elif page == "adicionar":
+        tela_adicionar_despesa()
+
+    elif page == "participantes":
+        tela_participantes()
+
+    elif page == "fechamento":
+        tela_fechamento()
+
+except Exception as _err:
+    logger.exception("Erro inesperado ao renderizar a página")
+    st.error("⚠️ Ops! Algo deu errado ao carregar esta tela. Seus dados estão salvos.")
+    col_retry, col_home = st.columns(2)
+    with col_retry:
+        if st.button("🔄 Tentar de novo", use_container_width=True):
+            st.rerun()
+    with col_home:
+        if st.button("🏠 Voltar ao início", use_container_width=True):
             st.session_state.page = "dashboard"
             st.rerun()
-
-elif page == "criar_grupo":
-    tela_criar_grupo()
-
-elif page == "perfil":
-    tela_perfil()
-
-elif page == "admin":
-    tela_admin()
-
-elif page.startswith("perfil_admin_"):
-    tela_perfil(target=page.replace("perfil_admin_", ""))
-
-elif grupo is None:
-    c1, c2, c3 = st.columns([1, 2, 1])
-    with c2:
-        logo = load_image_b64("logo.png")
-        if logo:
-            st.markdown(
-                f'<div style="text-align:center">'
-                f'<img src="data:image/png;base64,{logo}" style="max-width:200px">'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-        st.markdown("# 💸 Bem-vindo!")
-        st.markdown("Crie um novo grupo ou entre por um link de convite.")
-        if st.button("➕ Novo Grupo", key="criar_inicio", use_container_width=True):
-            st.session_state.page = "criar_grupo"
-            st.rerun()
-
-elif page == "dashboard":
-    tela_dashboard()
-
-elif page == "adicionar":
-    tela_adicionar_despesa()
-
-elif page == "participantes":
-    tela_participantes()
-
-elif page == "fechamento":
-    tela_fechamento()
+    with st.expander("Detalhes técnicos (para suporte)"):
+        st.exception(_err)
 
 # DEBUG: Monitor de cache e performance (opcional)
 if st.session_state.get("debug"):
