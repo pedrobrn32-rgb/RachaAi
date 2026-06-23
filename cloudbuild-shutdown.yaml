@@ -1,0 +1,44 @@
+steps:
+
+# Build image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    [
+      'build',
+      '-t',
+      'southamerica-east1-docker.pkg.dev/rachaai-01/cloud-run-source-deploy/shutdown:latest',
+      './shutdown'
+    ]
+
+# Push image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    [
+      'push',
+      'southamerica-east1-docker.pkg.dev/rachaai-01/cloud-run-source-deploy/shutdown:latest'
+    ]
+
+# Deploy Cloud Run (config econômica: escala a zero, 1 instância, CPU pausada ao ocioso)
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+    [
+      'run',
+      'deploy',
+      'shutdown',
+      '--image',
+      'southamerica-east1-docker.pkg.dev/rachaai-01/cloud-run-source-deploy/shutdown:latest',
+      '--region',
+      'southamerica-east1',
+      '--platform',
+      'managed',
+      '--allow-unauthenticated',
+      '--min-instances=0',
+      '--max-instances=1',
+      '--memory=256Mi',
+      '--cpu=1',
+      '--cpu-throttling'
+    ]
+
+options:
+  logging: CLOUD_LOGGING_ONLY

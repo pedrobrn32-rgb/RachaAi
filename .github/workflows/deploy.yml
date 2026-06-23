@@ -1,0 +1,90 @@
+name: Deploy Cloud Run Services
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Auth GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy App Service
+        run: |
+          gcloud config set project rachaai-01
+          
+          # Force the build process to stay in the same region as the registry to avoid cross-region network egress charges
+          gcloud config set builds/region southamerica-east1
+          
+          # Delete previous images using docker images delete to avoid package not found errors if registry is empty
+          gcloud artifacts docker images delete southamerica-east1-docker.pkg.dev/rachaai-01/cloud-run-source-deploy/rachaai-app --delete-tags --quiet || true
+          
+          # Deploy with cpu-throttling enabled to pause CPU when idle and guarantee near-zero billing
+          gcloud run deploy rachaai-app \
+            --source . \
+            --region southamerica-east1 \
+            --allow-unauthenticated \
+            --min-instances=0 \
+            --max-instances=1 \
+            --memory=512Mi \
+            --cpu=1 \
+            --cpu-throttling \
+            --set-env-vars=CACHE_BUST=$(date +%s) \
+            --quiet
+
+  deploy-shutdown:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Auth GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy Shutdown Service
+        run: |
+          gcloud config set project rachaai-01
+          
+          # Force the build process to stay in the same region as the registry to avoid cross-region network egress charges
+          gcloud config set builds/region southamerica-east1
+          
+          # Delete previous images using docker images delete to avoid package not found errors if registry is empty
+          gcloud artifacts docker images delete southamerica-east1-docker.pkg.dev/rachaai-01/cloud-run-source-deploy/rachaai-shutdown --delete-tags --quiet || true
+          
+          # Deploy with cpu-throttling enabled to pause CPU when idle and guarantee near-zero billing
+          gcloud run deploy rachaai-shutdown \
+            --source ./shutdown \
+            --region southamerica-east1 \
+            --allow-unauthenticated \
+            --min-instances=0 \
+            --max-instances=1 \
+            --memory=256Mi \
+            --cpu=1 \
+            --cpu-throttling \
+            --quiet
+
+          # Give Cloud Run a couple of seconds to settle URL propagation
+          sleep 5
+
+          RUN_URL=$(gcloud run services describe rachaai-shutdown --region=southamerica-east1 --format='value(status.url)')
+
+          gcloud pubsub subscriptions create budget-alerts-shutdown-sub \
+            --topic=budget-alerts \
+            --push-endpoint="$RUN_URL" \
+            --ack-deadline=60 \
+            --quiet || true

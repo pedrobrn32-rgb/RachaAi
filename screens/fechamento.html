@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .success-checkmark {
+            animation: checkmark 0.8s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        @keyframes checkmark {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-tertiary-fixed-variant": "#444749",
+                "on-secondary-container": "#586377",
+                "background": "#f8f9ff",
+                "secondary-fixed": "#d8e3fb",
+                "secondary-container": "#d5e0f8",
+                "on-tertiary": "#ffffff",
+                "on-primary-fixed": "#002113",
+                "on-secondary": "#ffffff",
+                "surface-container-low": "#eff4ff",
+                "surface-tint": "#006c49",
+                "surface-container-high": "#dce9ff",
+                "surface-dim": "#cbdbf5",
+                "primary-container": "#10b981",
+                "primary": "#006c49",
+                "tertiary-fixed-dim": "#c4c7c9",
+                "on-tertiary-fixed": "#191c1e",
+                "primary-fixed-dim": "#4edea3",
+                "secondary": "#545f73",
+                "on-primary-container": "#00422b",
+                "on-error": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "surface-container": "#e5eeff",
+                "surface-bright": "#f8f9ff",
+                "secondary-fixed-dim": "#bcc7de",
+                "inverse-primary": "#4edea3",
+                "outline-variant": "#bbcabf",
+                "tertiary-container": "#a0a3a5",
+                "on-primary-fixed-variant": "#005236",
+                "on-error-container": "#93000a",
+                "inverse-surface": "#213145",
+                "error": "#ba1a1a",
+                "inverse-on-surface": "#eaf1ff",
+                "on-surface-variant": "#3c4a42",
+                "on-secondary-fixed-variant": "#3c475a",
+                "primary-fixed": "#6ffbbe",
+                "tertiary-fixed": "#e0e3e5",
+                "error-container": "#ffdad6",
+                "on-secondary-fixed": "#111c2d",
+                "tertiary": "#5c5f61",
+                "surface-variant": "#d3e4fe",
+                "on-tertiary-container": "#36393b",
+                "surface-container-highest": "#d3e4fe",
+                "outline": "#6c7a71",
+                "surface": "#f8f9ff",
+                "on-surface": "#0b1c30",
+                "on-background": "#0b1c30",
+                "on-primary": "#ffffff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin-desktop": "40px",
+                "md": "16px",
+                "lg": "24px",
+                "xs": "8px",
+                "base": "4px",
+                "margin-mobile": "20px",
+                "xl": "32px",
+                "gutter": "16px",
+                "sm": "12px"
+        },
+        "fontFamily": {
+                "headline-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-sm": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-lg-mobile": [
+                        "Plus Jakarta Sans"
+                ]
+        },
+        "fontSize": {
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "800"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-md": [
+                        "20px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen pb-24 overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim shadow-sm docked full-width top-0 z-40 sticky">
+<div class="flex items-center justify-between px-margin-mobile h-16 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed">account_balance_wallet</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">DivideAí</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-primary-container overflow-hidden active:scale-95 transition-transform duration-200 cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A professional profile portrait of a smiling young adult in a modern studio with soft green and blue ambient lighting, reflecting a vibrant and trustworthy tech brand identity. High-quality photography, clean background, 8k resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy-EqxsAll6ROsirisuu_ydR4K8HWcpuurCYdteXWui1ROWp-thKEtLd8GW1JU1jKu00nEUXDuoi5w32az69VG_ZyLVn9yhIZ6_S9ATza9L9TNzk3d-snWzHcO1N6T1iDPfDh7tJNB72CyCON3JpTOYWlQ6hSl0Qgm4juuCchgpU7MAQ3jvmyy-HVdKaUTDIABnlnPr2OPJ-J2yqjjIbsaXTQAC6v4IMW1iyIr5w4i7b8CzAeLH2m-B_AxGJc2mxRvoQkVJXu7P0o-"/>
+</div>
+</div>
+</header>
+<main class="max-w-2xl mx-auto px-margin-mobile pt-xl">
+<!-- Success Hero Section -->
+<section class="text-center mb-xl">
+<div class="success-checkmark inline-flex items-center justify-center w-20 h-20 bg-primary-container rounded-full text-on-primary-container mb-md shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined text-[40px]" style="font-variation-settings: 'wght' 600;">check</span>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-xs">Resumo do Acerto</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Tudo calculado! Veja como zerar as pendências do grupo.</p>
+</section>
+<!-- Balance Summary Bento -->
+<section class="grid grid-cols-2 gap-sm mb-xl">
+<div class="col-span-2 bg-surface-container-lowest p-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] flex items-center justify-between border-l-4 border-primary">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Seu Saldo Final</p>
+<p class="font-headline-md text-headline-md text-primary">+ R$ 150,00</p>
+</div>
+<div class="bg-primary-container/10 p-xs rounded-full">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border-l-4 border-secondary">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Total do Grupo</p>
+<p class="font-body-lg text-body-lg font-bold">R$ 1.240,00</p>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border-l-4 border-tertiary">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Participantes</p>
+<p class="font-body-lg text-body-lg font-bold">4 pessoas</p>
+</div>
+</section>
+<!-- Suggested Payments -->
+<section class="mb-xl">
+<div class="flex items-center gap-2 mb-md">
+<span class="material-symbols-outlined text-primary">payments</span>
+<h3 class="font-headline-md text-headline-md">Pagamentos Sugeridos</h3>
+</div>
+<div class="space-y-sm">
+<!-- Payment Card 1 -->
+<div class="bg-white p-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-outline-variant/30 transition-transform active:scale-[0.98]">
+<div class="flex items-center justify-between mb-md">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">M</div>
+<div>
+<p class="font-body-md text-body-md font-semibold"><span class="text-error">Maria</span> deve pagar para <span class="text-primary">João</span></p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Acerto de Viagem</p>
+</div>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface">R$ 50,00</p>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-3 bg-primary-container/10 text-primary font-label-md text-label-md rounded-full hover:bg-primary-container/20 transition-colors active:scale-95" onclick="copyPix('maria-pix-key')">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+                        Copiar Chave PIX
+                    </button>
+</div>
+<!-- Payment Card 2 -->
+<div class="bg-white p-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-outline-variant/30 transition-transform active:scale-[0.98]">
+<div class="flex items-center justify-between mb-md">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-primary font-bold">V</div>
+<div>
+<p class="font-body-md text-body-md font-semibold"><span class="text-error">Você</span> deve pagar para <span class="text-primary">Ricardo</span></p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Churrasco de Domingo</p>
+</div>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface">R$ 32,50</p>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-3 bg-primary-container/10 text-primary font-label-md text-label-md rounded-full hover:bg-primary-container/20 transition-colors active:scale-95" onclick="copyPix('ricardo-pix-key')">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+                        Copiar Chave PIX
+                    </button>
+</div>
+<!-- Payment Card 3 -->
+<div class="bg-white p-md rounded-xl shadow-[0_4px_20px_rgba(30,41,59,0.05)] border border-outline-variant/30 transition-transform active:scale-[0.98]">
+<div class="flex items-center justify-between mb-md">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold">A</div>
+<div>
+<p class="font-body-md text-body-md font-semibold"><span class="text-error">Ana</span> deve pagar para <span class="text-primary">Você</span></p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Aluguel da Casa</p>
+</div>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface">R$ 182,50</p>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-3 bg-primary-container/10 text-primary font-label-md text-label-md rounded-full hover:bg-primary-container/20 transition-colors active:scale-95" onclick="copyPix('user-pix-key')">
+<span class="material-symbols-outlined text-[18px]">qr_code_2</span>
+                        Mostrar Meu PIX
+                    </button>
+</div>
+</div>
+</section>
+<!-- Final Action -->
+<div class="mt-xl flex flex-col gap-md">
+<button class="w-full py-4 bg-primary text-on-primary font-headline-md text-headline-md rounded-full shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                Finalizar Todos os Acertos
+            </button>
+<button class="w-full py-3 bg-secondary/10 text-secondary font-label-md text-label-md rounded-full hover:bg-secondary/20 transition-colors">
+                Exportar PDF do Resumo
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest dark:bg-inverse-surface shadow-lg shadow-[0_-4px_20px_rgba(30,41,59,0.05)]">
+<div class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-4 pt-2 max-w-7xl mx-auto left-1/2 -translate-x-1/2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant p-2 hover:bg-surface-container-low transition-colors active:scale-90" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant p-2 hover:bg-surface-container-low transition-colors active:scale-90" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm">Grupos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant p-2 hover:bg-surface-container-low transition-colors active:scale-90" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-sm text-label-sm">Despesas</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-full px-4 py-1 active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined">account_balance</span>
+<span class="font-label-sm text-label-sm font-bold">Fechamento</span>
+</a>
+</div>
+</nav>
+<!-- Toast Notification -->
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-6 py-3 rounded-full font-label-md text-label-md shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300 z-[100]" id="toast">
+        Chave PIX copiada!
+    </div>
+<script>
+        function copyPix(key) {
+            const toast = document.getElementById('toast');
+            
+            // Logic for copying would go here: navigator.clipboard.writeText(key);
+            
+            // UI Feedback
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2000);
+
+            // Button micro-interaction
+            event.currentTarget.classList.add('bg-primary-container/30');
+            setTimeout(() => {
+                event.currentTarget.classList.remove('bg-primary-container/30');
+            }, 200);
+        }
+
+        // Add a simple entrance animation for cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.bg-white');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease-out';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+</body></html>

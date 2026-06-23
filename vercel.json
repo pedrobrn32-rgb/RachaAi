@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://rachaai-app-724176116954.southamerica-east1.run.app/$1",
+      "permanent": false
+    }
+  ]
+}

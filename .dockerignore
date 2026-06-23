@@ -1,0 +1,46 @@
+# Git history (This is usually the heaviest part)
+.git
+.gitignore
+
+# Python virtual environments and packages
+venv/
+.venv/
+env/
+.env/
+bin/
+lib/
+include/
+.mypy_cache/
+# Python cache and compiled bytecode
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Streamlit local secrets (o tema .streamlit/config.toml DEVE ir na imagem)
+.streamlit/secrets.toml
+
+# IDE and OS metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Deployment and CI/CD configs
+.github/
+vercel.json
+cloudbuild.yaml
+cloudbuild-shutdown.yaml
+
+# Assets pesados e documentação que não precisam ir na imagem
+inicio.png
+*.md
+shutdown/
+migrate.py
+test_v2.py
+# Código/pastas legados (versão antiga monolítica e config órfã)
+app.py
+app/
