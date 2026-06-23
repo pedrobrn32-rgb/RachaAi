@@ -47,3 +47,12 @@ class Formatador:
     @staticmethod
     def hora_atual() -> str:
         return datetime.now().strftime("%H:%M")
+
+    # ─── Aliases (usados por utils/components.py) ───
+    @staticmethod
+    def formatar_valor(valor: float) -> str:
+        return Formatador.moeda(valor)
+
+    @staticmethod
+    def formatar_data(data_str: str) -> str:
+        return Formatador.data_relativa(data_str)
