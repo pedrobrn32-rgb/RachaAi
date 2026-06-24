@@ -42,11 +42,15 @@ from services.auth import AuthService, LoginManager
 # ─── INICIALIZAÇÃO ───
 # ═══════════════════════════════════════════════════════════════════
 
+# Sidebar starts open; closes (persists collapsed) after a group is clicked.
+if "sidebar_state" not in st.session_state:
+    st.session_state.sidebar_state = "expanded"
+
 st.set_page_config(
     page_title="Racha Aí!",
     page_icon="💸",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state=st.session_state.sidebar_state,
 )
 
 # ─── Tema global (Plus Jakarta Sans + Verde Esmeralda, alinhado ao DESIGN.md) ───
@@ -124,9 +128,16 @@ html body [data-testid="stApp"] .main [data-testid="baseButton-primary"]:hover{
     border:1px solid rgba(255,255,255,0.3) !important;border-radius:12px;width:100%;
     margin-bottom:5px;padding:8px 14px;font-weight:600}
 [data-testid="stSidebar"] button:hover{background:rgba(255,255,255,0.28) !important}
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"]{align-items:center !important;gap:6px !important}
 [data-testid="stSidebar"] [data-testid="column"] + [data-testid="column"] button{
-    background:transparent !important;border:none !important;padding:2px 4px !important;
-    margin:0 !important;min-height:auto !important;width:auto !important}
+    background:rgba(255,255,255,0.06) !important;border:1px solid rgba(255,255,255,0.18) !important;
+    border-radius:10px !important;padding:0 !important;margin:0 0 5px 0 !important;
+    width:38px !important;height:38px !important;min-height:38px !important;
+    display:flex !important;align-items:center !important;justify-content:center !important;
+    font-size:1rem;opacity:.85}
+[data-testid="stSidebar"] [data-testid="column"] + [data-testid="column"] button:hover{
+    background:rgba(239,68,68,0.85) !important;border-color:rgba(239,68,68,0.9) !important;
+    opacity:1;transform:none !important}
 /* Mobile */
 @media (max-width:640px){.main .block-container{padding-left:1rem;padding-right:1rem}}
 </style>""", unsafe_allow_html=True)
@@ -134,14 +145,14 @@ html body [data-testid="stApp"] .main [data-testid="baseButton-primary"]:hover{
 # ─── Sidebar + polimento profissional ───
 st.markdown("""<style>
 /* Sidebar mais larga e com profundidade */
-[data-testid="stSidebar"]{width:300px !important;min-width:300px !important;
-    box-shadow:4px 0 24px rgba(0,0,0,.14)}
+[data-testid="stSidebar"]{box-shadow:4px 0 24px rgba(0,0,0,.14)}
 [data-testid="stSidebar"] hr{border-color:rgba(255,255,255,.18) !important;margin:.6rem 0}
 [data-testid="stSidebar"] .stButton button{
     text-align:left !important;justify-content:flex-start !important;border-radius:10px !important}
 [data-testid="stSidebar"] .stButton button:hover{transform:translateX(3px)}
 /* DESKTOP: barra sempre aberta e fixa (esconde o botao de recolher) */
 @media (min-width:768px){
+    [data-testid="stSidebar"]{width:300px !important;min-width:300px !important}
     [data-testid="stSidebarCollapseButton"],
     [data-testid="baseButton-headerNoPadding"]{display:none !important}
 }
@@ -180,36 +191,22 @@ def render_tailwind(html: str, height: int):
     components.html(html, height=height, scrolling=True)
 
 
-def auto_close_sidebar_mobile():
-    """No celular, fecha a barra ao clicar num item dela. No desktop ela fica fixa
-    (o botao de recolher esta escondido via CSS), então isto só age no mobile."""
-    components.html(
-        """
-        <script>
-        const doc = window.parent.document;
-        const isMobile = () => window.parent.innerWidth < 768;
-        function collapseBtn(){
-            return doc.querySelector('[data-testid="stSidebarCollapseButton"] button')
-                || doc.querySelector('[data-testid="stSidebarCollapseButton"]')
-                || doc.querySelector('[data-testid="baseButton-headerNoPadding"]');
-        }
-        function wire(){
-            const sb = doc.querySelector('[data-testid="stSidebar"]');
-            if(!sb) return;
-            sb.querySelectorAll('button').forEach(function(b){
-                if(b.dataset._ac) return;
-                b.dataset._ac = '1';
-                b.addEventListener('click', function(){
-                    if(isMobile()){ const c = collapseBtn(); if(c){ setTimeout(function(){ c.click(); }, 130); } }
-                });
-            });
-        }
-        wire();
-        const sbEl = doc.querySelector('[data-testid="stSidebar"]');
-        if(sbEl){ new MutationObserver(wire).observe(sbEl, {childList:true, subtree:true}); }
-        </script>
-        """,
-        height=0,
+def page_banner(icon, title, eyebrow="", gradient="linear-gradient(135deg,#006c49,#10b981)"):
+    """Vibrant gradient page header for native screens."""
+    eyebrow_html = (
+        f'<div style="color:rgba(255,255,255,.8);font-size:.72rem;font-weight:700;'
+        f'letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px">{eyebrow}</div>'
+        if eyebrow else ""
+    )
+    st.markdown(
+        f'<div style="background:{gradient};padding:18px 22px;border-radius:18px;'
+        f'margin-bottom:18px;box-shadow:0 10px 26px rgba(0,108,73,.22);position:relative;overflow:hidden">'
+        f'<div style="position:absolute;right:-26px;top:-30px;width:120px;height:120px;'
+        f'border-radius:50%;background:rgba(255,255,255,.12)"></div>'
+        f'{eyebrow_html}'
+        f'<div style="color:#fff;font-size:1.5rem;font-weight:800;position:relative">{icon} {title}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
     )
 
 
@@ -520,6 +517,7 @@ def render_sidebar():
                         if st.button(f"{icon} {g.nome}", key=f"grp_{gid}", use_container_width=True):
                             st.session_state.grupo_ativo_id = gid
                             st.session_state.page = "dashboard"
+                            st.session_state.sidebar_state = "collapsed"
                             st.query_params["grupo"] = gid
                             st.rerun()
                     with c2:
@@ -534,6 +532,7 @@ def render_sidebar():
                     if st.button(f"{icon} {g.nome}", key=f"grp_{gid}", use_container_width=True):
                         st.session_state.grupo_ativo_id = gid
                         st.session_state.page = "dashboard"
+                        st.session_state.sidebar_state = "collapsed"
                         st.query_params["grupo"] = gid
                         st.rerun()
         else:
@@ -554,7 +553,7 @@ def render_sidebar():
 
 def tela_criar_grupo():
     """Tela para criar novo grupo"""
-    st.markdown("## ➕ Criar Novo Grupo")
+    page_banner("➕", "Criar Novo Grupo", "Grupo")
     with st.form("form_novo_grupo"):
         nome = st.text_input("📝 Nome do grupo", placeholder="Ex: Viagem Rio 2026")
         desc = st.text_input("📋 Descrição", placeholder="Ex: Gastos da viagem")
@@ -720,8 +719,8 @@ def tela_adicionar_despesa():
             st.rerun()
         return
     
-    st.markdown("## ➕ Nova Despesa")
-    
+    page_banner("🧾", "Nova Despesa", grupo.nome, "linear-gradient(135deg,#6366f1,#8b5cf6)")
+
     with st.form("form_despesa", clear_on_submit=True):
         c1, c2 = st.columns(2)
         
@@ -1029,7 +1028,6 @@ if not st.session_state.usuario_logado:
     st.stop()
 
 render_sidebar()
-auto_close_sidebar_mobile()
 
 grupo = get_grupo_ativo()
 page = st.session_state.page

@@ -84,16 +84,17 @@ class Renderizador:
 </div>
 </header>"""
 
-    def _kpi_card(self, label, value, icon, color="secondary", sublabel=""):
-        sub_html = f'<p class="text-label-sm text-on-surface-variant mt-base">{sublabel}</p>' if sublabel else ""
+    def _kpi_card(self, label, value, icon, gradient, sublabel=""):
+        sub_html = f'<p class="text-label-sm text-white/80 mt-base font-medium">{sublabel}</p>' if sublabel else ""
         return f"""
-<div class="glass-card custom-shadow p-lg rounded-xl border border-white/40 flex flex-col justify-between min-h-[160px]">
-<div class="flex items-center justify-between">
-<p class="text-label-md text-on-surface-variant">{label}</p>
-<span class="material-symbols-outlined text-{color} opacity-50">{icon}</span>
+<div class="custom-shadow p-lg rounded-2xl flex flex-col justify-between min-h-[150px] text-white relative overflow-hidden" style="background:{gradient}">
+<div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10"></div>
+<div class="flex items-center justify-between relative">
+<p class="text-label-md text-white/90 font-semibold">{label}</p>
+<span class="material-symbols-outlined bg-white/20 rounded-full p-1.5 text-white text-[20px]">{icon}</span>
 </div>
-<div>
-<p class="text-display-lg text-on-surface">{value}</p>
+<div class="relative">
+<p class="text-[34px] font-extrabold leading-none tracking-tight">{value}</p>
 {sub_html}
 </div>
 </div>"""
@@ -120,27 +121,29 @@ class Renderizador:
 
     def _participante_card(self, p: Participante):
         saldo = self.calc.saldo_participante(p.id)
-        cor = "primary" if saldo >= 0 else "error"
-        sinal = "+" if saldo >= 0 else ""
-        colors = ["primary-container", "secondary-container", "tertiary-container", "surface-container-highest"]
-        idx = self.grupo.participantes.index(p) % len(colors)
-        bg = colors[idx]
+        positivo = saldo >= 0
+        sinal = "+" if positivo else ""
+        badge_bg = "#dcfce7" if positivo else "#fee2e2"
+        badge_tx = "#15803d" if positivo else "#b91c1c"
+        avatar_grad = "linear-gradient(135deg,#10b981,#006c49)" if positivo else "linear-gradient(135deg,#fb7185,#ef4444)"
+        label = "recebe" if positivo else "deve"
         return f"""
-<div class="bg-surface-container p-md rounded-xl flex items-center gap-md">
-<div class="w-10 h-10 rounded-full bg-{bg} flex items-center justify-center font-bold text-sm">{p.iniciais}</div>
-<div class="flex-1">
-<p class="text-label-md text-on-surface">{p.nome}</p>
-<p class="text-label-sm text-{cor}">Saldo: {sinal}{fmt.moeda(saldo)}</p>
+<div class="bg-surface-container-lowest custom-shadow p-md rounded-xl flex items-center gap-md border border-outline-variant/20">
+<div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0" style="background:{avatar_grad}">{p.iniciais}</div>
+<div class="flex-1 min-w-0">
+<p class="text-label-md text-on-surface font-semibold truncate">{p.nome}</p>
+<p class="text-label-sm text-on-surface-variant">{label}</p>
 </div>
+<span class="text-label-md font-bold px-3 py-1 rounded-full whitespace-nowrap" style="background:{badge_bg};color:{badge_tx}">{sinal}{fmt.moeda(saldo)}</span>
 </div>"""
 
     def render_dashboard(self) -> str:
         kpis = self.calc.kpis()
         despesas_recentes = sorted(self.grupo.despesas, key=lambda d: d.data, reverse=True)[:5]
 
-        kpi1 = self._kpi_card("Total do Grupo", fmt.moeda(kpis["total_gasto"]), "analytics", "secondary", f"{kpis['num_despesas']} despesas")
-        kpi2 = self._kpi_card("Media por Pessoa", fmt.moeda(kpis["media_por_pessoa"]), "person", "primary", f"{kpis['num_participantes']} participantes")
-        kpi3 = self._kpi_card("Maior Despesa", fmt.moeda(kpis["maior_despesa"]), "trending_up", "tertiary", kpis["maior_despesa_desc"])
+        kpi1 = self._kpi_card("Total do Grupo", fmt.moeda(kpis["total_gasto"]), "analytics", "linear-gradient(135deg,#006c49 0%,#10b981 100%)", f"{kpis['num_despesas']} despesas")
+        kpi2 = self._kpi_card("Media por Pessoa", fmt.moeda(kpis["media_por_pessoa"]), "person", "linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%)", f"{kpis['num_participantes']} participantes")
+        kpi3 = self._kpi_card("Maior Despesa", fmt.moeda(kpis["maior_despesa"]), "trending_up", "linear-gradient(135deg,#f97316 0%,#fb7185 100%)", kpis["maior_despesa_desc"])
 
         despesas_html = "".join(self._despesa_card(d) for d in despesas_recentes)
         participantes_html = "".join(self._participante_card(p) for p in self.grupo.participantes)
@@ -154,10 +157,16 @@ class Renderizador:
         html = TAILWIND_HEAD + self._header() + f"""
 <main class="max-w-7xl mx-auto px-margin-mobile pt-lg">
 <section class="mb-xl">
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
+<div class="relative overflow-hidden rounded-2xl p-lg custom-shadow" style="background:linear-gradient(135deg,#004d2e 0%,#006c49 55%,#10b981 100%)">
+<div class="absolute -right-8 -top-10 w-40 h-40 rounded-full bg-white/10"></div>
+<div class="absolute -right-2 bottom-2 w-20 h-20 rounded-full bg-white/5"></div>
+<div class="relative flex flex-col md:flex-row md:items-center justify-between gap-md">
 <div>
-<h2 class="text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">{self.grupo.nome}</h2>
+<p class="text-label-sm text-white/70 uppercase tracking-widest mb-1">Grupo</p>
+<h2 class="text-headline-lg-mobile md:text-headline-lg text-white mb-xs">{self.grupo.nome}</h2>
 <div class="flex -space-x-2 overflow-hidden py-1">{avatars}</div>
+</div>
+<span class="material-symbols-outlined text-white/30 text-[64px] hidden md:block">savings</span>
 </div>
 </div>
 </section>
