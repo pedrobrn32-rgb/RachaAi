@@ -630,8 +630,16 @@ def tela_dashboard():
         
         for d in despesas_sorted[start:end]:
             pag = grupo.get_participante(d.pagador_id)
-            card_despesa(d, grupo)
-            
+            acao = card_despesa(d, grupo)
+            if acao == "edit":
+                st.session_state.editando_despesa = d.id
+                st.rerun()
+            elif acao == "delete":
+                grupo.remover_despesa(d.id)
+                salvar_dados()
+                alert_sucesso("Despesa removida")
+                st.rerun()
+
             if st.session_state.editando_despesa == d.id:
                 st.markdown("---")
                 with st.form(f"form_edit_{d.id}"):

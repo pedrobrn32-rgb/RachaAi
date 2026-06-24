@@ -34,9 +34,12 @@ def card_despesa(despesa, grupo, show_actions: bool = True):
             with col_actions:
                 col_e, col_d = st.columns(2, gap="small")
                 with col_e:
-                    return st.button("✏️", key=f"edit_{despesa.id}", help="Editar", use_container_width=True)
+                    if st.button("✏️", key=f"edit_{despesa.id}", help="Editar", use_container_width=True):
+                        return "edit"
                 with col_d:
-                    return st.button("🗑️", key=f"del_{despesa.id}", help="Deletar", use_container_width=True)
+                    if st.button("🗑️", key=f"del_{despesa.id}", help="Deletar", use_container_width=True):
+                        return "delete"
+    return None
 
 def card_participante(participante, grupo, show_saldo: bool = True):
     """Card para exibir participante com saldo"""
